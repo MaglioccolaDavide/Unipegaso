@@ -1,0 +1,50 @@
+#menu {
+	background-color: #fbfbfb;;
+}
+
+.menu-item {
+	padding:15px; 
+	margin: 0 auto;
+	max-width: 80vw;
+}
+
+.menu-item-prezzo {
+	font-weight: bold;
+	font-size: 80%;
+	padding:10px 40px;
+	text-align:right;
+}
+
+.menu-item-piatto {
+	color: #6c757d;
+	padding:10px 40px;
+}
+
+.menu-item h4 {
+	margin: 20px 0;
+}
+
+#menu h2 {
+	text-align: center;
+	margin-bottom: 80px;
+}
+
+.menu-item .col-xl-6 {
+	max-width: 40%;
+	margin: 2% 5%;
+}
+
+@media (max-width: 991px) {
+	.menu-item-prezzo, .menu-item-piatto {
+		padding:10px;
+	}
+	
+	.menu-item h4 {
+		text-align: center;
+	}
+	
+	.menu-item .col-xl-6 {
+		max-width: 100%;
+		margin: 0;
+	}
+}

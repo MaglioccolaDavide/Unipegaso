@@ -1,0 +1,334 @@
+#prenota h2 {
+	text-align: center;
+	margin-bottom: 80px;
+}
+
+#prenota .row {
+	padding: 0px 20px; 
+}
+
+#prenota h4 {
+	text-align: center;
+}
+
+/* riepilogo */
+
+.riepilogo {
+	width: 25vw;
+	border-radius: 15px;
+	box-shadow: 0 0 5px 0 #777;
+	background-color: #ffffff;
+	overflow: hidden;
+	margin: 50px auto;
+}
+
+.riepilogo h5 {
+    margin-top: 20px;
+    font-size: 1.25rem;
+    color: #333;
+    text-align: left;
+}
+
+.riepilogo-sezione {
+	position: relative;
+	padding: 20px;
+	text-align: center;
+	transition: min-height .5s ease-in-out;
+	min-height: 50px;
+    overflow: hidden;
+}
+
+.riepilogo-sezione.attiva {
+	transition: min-height .5s ease-in-out;
+	min-height: 250px;
+}
+
+.riepilogo-sezione:not(:first-child) {
+	margin-top: -10px;
+	box-shadow: 0 -5px 8px rgba(0, 0, 0, 0.1);
+	background-color: #ffffff;
+}
+
+.riepilogo-sezione.attiva:first-child {
+	padding: 0;
+	background: url('../img/riepilogo-low.jpg') no-repeat center/cover; /* crediti: https://www.pexels.com/photo/plate-of-beef-with-herbs-1639563/ */
+	height: 300px;
+    background-position-y: bottom;
+}
+
+.riepilogo-sezione:not(.attiva) {
+	height: 50px;
+}
+
+.riepilogo-sezione:not(.attiva) .riepilogo-contenuto {
+	display: none;
+}
+
+.riepilogo-sezione:last-child {
+	background: #ffcccc;
+}
+
+.riepilogo-sezione:not(.attiva):last-child .riepilogo-contenuto {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.riepilogo-contenuto {
+	display: block;
+	height: 100%;
+}
+
+.riepilogo-contenuto p {
+	margin: 0;
+	padding: 10px;
+}
+
+.riepilogo-contenuto a {
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.riepilogo-contenuto a:hover{
+	text-shadow: 0px 0px 1px #000000;
+}
+
+/* sezione 1 orari */
+
+.orari {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.orari button.col {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 0; 
+    border-radius: 5px;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    text-align: center;
+}
+
+.orari button.col:hover {
+    background-color: #f0f8ff;
+}
+
+.orari button.col.disabilitato, .form-group button.disabilitato {
+    background-color: #ddd;
+    color: #aaa;
+    border-color: #aaa;
+    cursor: not-allowed;
+}
+
+.orari button.col.disabilitato:hover, .form-group button.disabilitato:hover {
+    background-color: #ddd;
+    color: #aaa;
+}
+
+.orari button.col.selezionato {
+    border: 2px solid #007bff;
+    font-weight: bold;
+}
+
+/* sezione 2 ospiti */
+
+.form {
+    width: 100%;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.form.chiuso {
+	display: none !important;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group.inline {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.form input {
+	width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-group.inline > div {
+    flex: 1;
+}
+
+.form button {
+    width: 100%;
+    padding: 10px 0;
+    background: #007bff;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.form button:hover {
+    background: #0056b3;
+}
+
+#data-ora {
+	font-weight: 500;
+	color: #444;
+}
+
+.return-invalid, #validaEmail, #validaNome, #validaOspiti, #validaEmailCancellazione, #validaCodiceCancellazione {
+	font-weight: 500;
+	color: #d30000;
+}
+
+.return-valid {
+	font-weight: 500;
+	color: #1d9900;
+}
+
+.return-cancellazione-valid {
+	font-weight: 500;
+	color: #000000;
+}
+
+.form-invalid {
+	border: 1px solid #d30000 !important;
+}
+
+/* calendario */
+
+.calendario {
+	max-width: 45vw;
+    margin: 50px 10vw 50px 0;
+    background: #fdfdfd;
+    padding: 2.5vw;
+    border: 1px solid #ddd;
+    border-radius: 15px;
+	box-shadow: 0 0 5px 0 #777;
+}
+
+.intestazione {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.intestazione button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.intestazione button:hover {
+    background-color: #0056b3;
+}
+
+.mese-anno {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.giorni-settimana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-weight: bold;
+    background-color: #f0f0f0;
+    padding: 10px 0;
+    border-radius: 5px;
+    margin-bottom: 5px;
+	text-align: center;
+}
+
+.giorni {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.giorni .col {
+    padding: 15px 0;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.giorni .col:empty {
+    background-color: transparent;
+    pointer-events: none;
+    cursor: default;
+}
+
+.giorni .col:hover:not(.disabilitato) {
+    background-color: #f0f8ff;
+}
+
+.giorni .fine-settimana {
+    background-color: #ffcccc;
+}
+
+.giorni .selezionato {
+    border: 2px solid #007bff;
+    font-weight: bold;
+}
+
+.giorni .disabilitato {
+    background-color: #e9ecef;
+    color: #aaa;
+    cursor: not-allowed;
+}
+
+
+@media (max-width: 991px) {
+	.calendario {
+		max-width: 95vw;
+		font-size: 0.5rem;
+		margin-right: 0;
+	}
+	
+	.intestazione button {
+		font-size: 0.5rem;
+	}
+	
+	.mese-anno {
+		font-size: 1rem;
+	}
+	
+	.riepilogo {
+		width: 90vw;
+	}
+	
+	.riepilogo h5 {
+		font-size: 1rem;
+	}
+	
+	.orari {
+		font-size: 0.75rem;
+		grid-template-columns: repeat(4, 1fr);
+	}
+	
+	.riepilogo-contenuto a {
+		font-size: 80%;
+	}
+}

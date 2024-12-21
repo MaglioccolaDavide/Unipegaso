@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Ristorante Villa Inventata</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+	<link href="css/menu.css" rel="stylesheet">
+	<link href="css/prenota.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container" style="padding: 0 50px;">
+            <a class="navbar-brand" href="#home"><img src="img/logo.png" alt="Logo Ristorante"></a>
+            <button class="navbar-toggler" type="button" onclick="toggleNavBar()">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse menu-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#menu">Menu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#prenota">Prenota Ora!</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Body -->
+<div class="container content-wrapper">
+
+	<section id="home" class="section-padding">
+		<div class="overlay">
+			<h1>Ristorante Villa Inventata</h1>
+			<p>Un'esperienza gastronomica indimenticabile!</p>
+			<p>Siamo aperti sia a pranzo che a cena su prenotazione</p>
+			<a href="#prenota" class="btn btn-primary btn-lg">Riserva un tavolo!</a>
+		</div>
+		<div class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+				<div class="carousel-item active" data-bs-interval="3000">
+					<img src="img/carousel/1-low.jpg" class="d-block w-100">
+					<!-- crediti: https://www.pexels.com/photo/person-holding-bowl-2403392/ -->
+				</div>
+				<div class="carousel-item" data-bs-interval="3000">
+					<img src="img/carousel/2-low.jpg" class="d-block w-100">
+					<!-- crediti: https://www.pexels.com/photo/hamburger-and-fries-photo-2983101/ -->
+				</div>
+				<div class="carousel-item" data-bs-interval="3000">
+					<img src="img/carousel/3-low.jpg" class="d-block w-100">
+					<!-- crediti: https://www.pexels.com/photo/baked-pizza-on-pizza-peel-in-oven-905847/ -->
+				</div>
+				<div class="carousel-item" data-bs-interval="3000">
+					<img src="img/carousel/4-low.jpg" class="d-block w-100">
+					<!-- crediti: https://www.pexels.com/photo/chef-preparing-vegetable-dish-on-tree-slab-1267320/ -->
+				</div>
+				<div class="carousel-item" data-bs-interval="3000">
+					<img src="img/carousel/5-low.jpg" class="d-block w-100">
+					<!-- crediti: https://www.pexels.com/photo/wine-glasses-on-table-tops-941861/ -->
+				</div>
+			</div>
+		</div>
+	</section>
+
+    <section id="menu" class="section-padding">	
+		<div class="container">
+			<div id="menu-container" class="row menu-item">
+			<div class="col-lg-12"><h2>Scopri il nostro menu</h2></div>
+			</div>
+		</div>
+	</section>
+
+    <section id="prenota" class="section-padding">
+        <div class="container">
+			<div class="row" style="flex-direction: row-reverse;">
+			<div class="col-lg-12"><h2>Prenota ora la tua esperienza gastronomica!</h2></div>
+				<div class="col-lg-6 order-2">
+					<div class="riepilogo">
+						<div class="riepilogo-sezione attiva"></div>
+						<div id="riepilogo_1" class="riepilogo-sezione">
+							<div class="riepilogo-contenuto">
+								<h5>Pranzo</h5>
+								<div class="orari"></div>
+								<h5>Cena</h5>
+								<div class="orari"></div>
+							</div>
+						</div>
+						<div id="riepilogo_2" class="riepilogo-sezione">
+							<div class="riepilogo-contenuto">
+								<form id="formPrenotazione" class="form" novalidate autocomplete="off">
+									<div class="form-group">
+										<span id="data-ora"></span>
+									</div>
+									<div class="form-group">
+										<label for="email">Email:</label>
+										<input id="email" name="email" type="email" required>
+										<span id="validaEmail"></span>
+									</div>
+									<div class="form-group inline">
+										<div>
+											<label for="nome">Nome:</label>
+											<input id="nome" name="nome" type="text" required onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123)">
+											<span id="validaNome"></span>
+										</div>
+										<div>
+											<label for="ospiti">Numero Ospiti:</label>
+											<input id="ospiti" name="ospiti" type="number" min="1" max="8" required>
+											<span id="validaOspiti"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<button id="formSubmit" type="submit">Invia</button>
+									</div>
+									<div class="form-group">
+										<span id="form-return"></span>
+									</div>
+								</form>
+							</div>
+						</div>
+						<div id="riepilogo_3" class="riepilogo-sezione">
+							<div class="riepilogo-contenuto">
+								<a onclick="calendario.espandiCancellaPrenotazione()">Vuoi cancellare la tua prenotazione?</a>
+								<form id="formCancellazione" class="form chiuso" novalidate autocomplete="off">
+									<div class="form-group inline">
+										<div>
+											<label for="emailCancellazione">Email:</label>
+											<input id="emailCancellazione" name="emailCancellazione" type="email" required>
+											<span id="validaEmailCancellazione"></span>
+										</div>
+										<div>
+											<label for="codiceCancellazione">Codice:</label>
+											<input id="codiceCancellazione" name="codiceCancellazione" type="text" required onkeypress="return (event.charCode >= 48 && event.charCode <= 57)" onchange="this.value = this.value.trim()">
+											<span id="validaCodiceCancellazione"></span>
+										</div>
+									</div>
+									<div class="form-group">
+										<button id="formSubmitCancellazione" type="submit">Cancella Prenotazione</button>
+									</div>
+									<div class="form-group">
+										<span id="form-cancellazione-return"></span>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-6 order-1">
+					<div class="calendario"></div>
+				</div>
+
+			</div>
+		</div>
+    </section>
+	
+</div>
+
+<!-- Footer -->
+<footer class="text-center">
+    <div class="container">
+        <p>&copy; 2024 Davide Maglioccola</p>
+    </div>
+</footer>
+
+<script src="js/jquery-3.7.1.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script> <!-- versione bootstrap 5.3.3 -->
+<script src="js/navbar.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/prenota.js"></script>
+
+</body>
+</html>
