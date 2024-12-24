@@ -39,11 +39,17 @@ class Calendario {
 				dd = parseInt(match[1], 10);
 				mm = parseInt(match[2], 10);
 				yyyy = parseInt(match[3], 10);
+				
+				dd = dd < 10 ? `0${dd}` : dd;
+				mm = mm < 10 ? `0${mm}` : mm;
 			} 
 			else if((match = data.match(formatoYMD))) {
 				yyyy = parseInt(match[1], 10);
 				mm = parseInt(match[2], 10);
 				dd = parseInt(match[3], 10);
+				
+				dd = dd < 10 ? `0${dd}` : dd;
+				mm = mm < 10 ? `0${mm}` : mm;
 			}
 		}
 		
@@ -52,8 +58,8 @@ class Calendario {
 		} else if(formato == "Ymd") {
 			dataFormattata = yyyy + '-' + mm + '-' + dd; // riposiziono secondo formato inglese
 		}
-		else if(formato == "m") {
-			dataFormattata = mm; // estraggo il mese
+		else if(formato == "mY") {
+			dataFormattata = mm+""+yyyy; // estraggo il mese
 		}
 		return dataFormattata;
 	}
@@ -213,43 +219,43 @@ class Calendario {
 		const _data = this.formattaData(data, "Ymd");
 		const orariPranzo = riepilogo1.querySelectorAll(".orari")[0];
 		const orariCena = riepilogo1.querySelectorAll(".orari")[1];
-
+		
 		// pulisco le sezioni orari prima di renderizzare
 		orariPranzo.innerHTML = '';
 		orariCena.innerHTML = '';
 		
 		const popolaOrariPerDiv = (orariDiv, orariArray, _data) => {
 			
-			const prenotazioniDelGiorno = (this.prenotazioni[this.formattaData(data, "m")]?.prenotazioni || []).filter(prenotazione => {
+			const prenotazioniDelGiorno = (this.prenotazioni[this.formattaData(data, "mY")]?.prenotazioni || []).filter(prenotazione => {
 				return prenotazione.data === _data; // filtra gli orari per la data selezionata
 			});
-			
+						
 			orariArray.forEach(orario => {
 				const bottone = document.createElement("button");
 				bottone.textContent = orario;
 				bottone.className = "col";
 				bottone.dataset.orario = orario;
 				
-				if (!this.prenotazioniRandom[_data]) { // inizializza la struttura dati
-					this.prenotazioniRandom[_data] = {};
-				}
-				
-				if (this.prenotazioniRandom[_data][orario] === undefined) { // se non esiste o è definito e l'orario è disabilitato randomicamente
-					if (Math.random() < 0.3) { // 30% di probabilità di disabilitare un orario
-						bottone.classList.add('disabilitato');
-						this.prenotazioniRandom[_data][orario] = true; // salva lo stato come disabilitato
-					} else {
-						this.prenotazioniRandom[_data][orario] = false; // salva lo stato come non disabilitato
-					}
-				} else {
-					if (this.prenotazioniRandom[_data][orario]) { // se lo stato è true disabilita
-						bottone.classList.add('disabilitato');
-					}
-				}
-				
 				const prenotazione = prenotazioniDelGiorno.find(p => p.ora === `${orario}:00`);
 				if (prenotazione && prenotazione.count >= this.prenotazioniMassime) { // disabilita l'orario se il numero di prenotazioni raggiunge o supera il limite massimo
 					bottone.classList.add('disabilitato');
+				} else {					
+					if (!this.prenotazioniRandom[_data]) { // inizializza la struttura dati
+						this.prenotazioniRandom[_data] = {};
+					}
+					
+					if (this.prenotazioniRandom[_data][orario] === undefined) { // se non esiste o è definito e l'orario è disabilitato randomicamente
+						if (Math.random() < 0.3) { // 30% di probabilità di disabilitare un orario
+							bottone.classList.add('disabilitato');
+							this.prenotazioniRandom[_data][orario] = true; // salva lo stato come disabilitato
+						} else {
+							this.prenotazioniRandom[_data][orario] = false; // salva lo stato come non disabilitato
+						}
+					} else {
+						if (this.prenotazioniRandom[_data][orario]) { // se lo stato è true disabilita
+							bottone.classList.add('disabilitato');
+						}
+					}
 				}
 				
 				bottone.addEventListener('click', () => this.selezionaOrario(bottone, data));
@@ -263,7 +269,7 @@ class Calendario {
 	}
 		
 	verificaPrenotazioni(_data) {
-		if (!this.prenotazioni[this.formattaData(_data, "m")]) { // se il valore non è già stato richiesto procedi, altrimenti evita inutili ripetizioni
+		if (!this.prenotazioni[this.formattaData(_data, "mY")]) { // se il valore non è già stato richiesto procedi, altrimenti evita inutili ripetizioni
 			try { // fetch post a php dei valori [data] con response in json
 				fetch('php/verificaPrenotazioni.php', {
 					method: 'POST',
@@ -283,14 +289,14 @@ class Calendario {
 							console.error("Errore:", data.error);
 						}
 					} else {
-						this.prenotazioni[this.formattaData(_data, "m")] = { prenotazioni: data.data.prenotazioni };
+						this.prenotazioni[this.formattaData(_data, "mY")] = { prenotazioni: data.data.prenotazioni };
 					}
 				})
             } catch (error) {
                 console.error("Errore:", error);
             }
 		}
-		return this.prenotazioni[this.formattaData(_data, "m")];
+		return this.prenotazioni[this.formattaData(_data, "mY")];
 	}
 	
 	resetFormPrenotazione(emailValue = "", nomeValue = "", ospitiValue = "") {
@@ -437,14 +443,10 @@ class Calendario {
 						formReturn.classList.add('return-valid');
 						formSubmit.disabled = true;
 						formSubmit.classList.add('disabilitato');
-						let m = this.formattaData(dataPrenotazione, "m");
-						if (this.prenotazioni[m]) {
-							delete this.prenotazioni[m]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
-						}
-						let Ymd = this.formattaData(dataPrenotazione, "Ymd");
-						if (this.prenotazioniRandom[Ymd]) {
-							delete this.prenotazioniRandom[Ymd]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
-						}
+						let mY = this.formattaData(dataPrenotazione, "mY");
+						if (this.prenotazioni[mY]) {
+							delete this.prenotazioni[mY]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						}						
 						this.renderCalendario();
 					}
 				})
@@ -530,13 +532,9 @@ class Calendario {
 							</div>
 						`;
 						formReturn.classList.add('return-cancellazione-valid');
-						let m = this.formattaData(data.data.data, "m");
-						if (this.prenotazioni[m]) {
-							delete this.prenotazioni[m]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
-						}
-						let Ymd = this.formattaData(data.data.data, "Ymd");
-						if (this.prenotazioniRandom[Ymd]) {
-							delete this.prenotazioniRandom[Ymd]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						let mY = this.formattaData(data.data.data, "mY");
+						if (this.prenotazioni[mY]) {
+							delete this.prenotazioni[mY]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
 						}
 						this.renderCalendario();
 					}
