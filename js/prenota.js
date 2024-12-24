@@ -437,8 +437,13 @@ class Calendario {
 						formReturn.classList.add('return-valid');
 						formSubmit.disabled = true;
 						formSubmit.classList.add('disabilitato');
-						if (this.prenotazioni[this.formattaData(dataPrenotazione, "m")]) {
-							delete this.prenotazioni[this.formattaData(dataPrenotazione, "m")]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						let m = this.formattaData(dataPrenotazione, "m");
+						if (this.prenotazioni[m]) {
+							delete this.prenotazioni[m]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						}
+						let Ymd = this.formattaData(dataPrenotazione, "Ymd");
+						if (this.prenotazioniRandom[Ymd]) {
+							delete this.prenotazioniRandom[Ymd]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
 						}
 						this.renderCalendario();
 					}
@@ -525,8 +530,13 @@ class Calendario {
 							</div>
 						`;
 						formReturn.classList.add('return-cancellazione-valid');
-						if (this.prenotazioni[this.formattaData(data.data.data, "m")]) {
-							delete this.prenotazioni[this.formattaData(data.data.data, "m")]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						let m = this.formattaData(data.data.data, "m");
+						if (this.prenotazioni[m]) {
+							delete this.prenotazioni[m]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						}
+						let Ymd = this.formattaData(data.data.data, "Ymd");
+						if (this.prenotazioniRandom[Ymd]) {
+							delete this.prenotazioniRandom[Ymd]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
 						}
 						this.renderCalendario();
 					}
