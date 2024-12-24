@@ -6,60 +6,61 @@ class Calendario {
         this.annoCorrente = this.oggi.getFullYear(); // anno corrente
         this.annoMassimo = this.annoCorrente + 2; // 2 anni nel futuro a partire da oggi
         this.nomiMesi = [ "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre" ]; // array nomi mesi
-		
-		this.randomGiorni = this.generaRandomGiorni();
-		this.randomOrari = {};
+		this.orari = ["12:00", "12:30", "13:00", "13:30", "14:00", "19:00", "19:30", "20:00", "20:30", "21:00", "21:30", "22:00"];
+		this.prenotazioniMassime = 1;
+
+		this.prenotazioni = {};
+		this.prenotazioniRandom = {};
 		
         this.inizializza();
     }
 	
-	generaRandomGiorni() { // genera un json con coppia valori randomSalta e randomOccupa per ogni mese-anno
-        const mapping = {};
-        let mese = this.meseCorrente;
-        let anno = this.annoCorrente;
+	formattaData(data, formato) {
+		var yyyy = 0;
+		var mm = 0;
+		var dd = 0;
+		var dataFormattata = data;
+		
+		if(data instanceof Date && !isNaN(data.getTime())) { // se la data è già un oggetto data
+			yyyy = data.getFullYear(); // ottengo anno per esteso dalla data selezionata
+			mm = data.getMonth() + 1; // ottengo mese dalla data selezionata, +1 perchè mese parte da 0
+			dd = data.getDate(); // ottengo giorno dalla data selezionata
+		}
 
-        for (var i = 0; i <= 24; i++) { 
-            const chiave = `${anno}-${mese + 1}`; 
+		if(typeof data === "string") { // se la data è una stringa
+			data = data.trim();
 
-            mapping[chiave] = {
-                randomSalta: Math.floor(Math.random() * 10), // variabile random da 0 a 9 per simulare i giorni liberi
-                randomOccupa: Math.floor(Math.random() * 4) // variabile random da 0 a 3 per simulare i giorni occupati
-            };
+			const formatoDMY = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/; // dd/mm/yyyy
+			const formatoYMD = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;   // yyyy-mm-dd
 
-            mese++;
-            if (mese > 11) {
-                mese = 0;
-                anno++;
-            }
-        }
+			let match;
 
-        return mapping;
-    }
-	
-	generaRandomOrari(data) { // genera un json con coppia valori randomSalta e randomOccupa per pranzo e cena per ogni data
-        if (!this.randomOrari[data]) {
-            this.randomOrari[data] = {
-                pranzo: {
-                    randomSalta: Math.floor(Math.random() * 5), // variabile random da 0 a 4 per simulare gli orari liberi a pranzo
-                    randomOccupa: Math.floor(Math.random() * 4) // variabile random da 0 a 3 per simulare gli orari occupati a pranzo
-                },
-                cena: {
-                    randomSalta: Math.floor(Math.random() * 5), // variabile random da 0 a 4 per simulare gli orari liberi a cena
-                    randomOccupa: Math.floor(Math.random() * 4) // variabile random da 0 a 3 per simulare gli orari occupati a cena
-                }
-            };
-        }
-        return this.randomOrari[data];
-    }
-	
-	ottieniRandom(mese, anno) {
-        const chiave = `${anno}-${mese + 1}`;
-        return this.randomGiorni[chiave];
-    }
+			if((match = data.match(formatoDMY))) {
+				dd = parseInt(match[1], 10);
+				mm = parseInt(match[2], 10);
+				yyyy = parseInt(match[3], 10);
+			} 
+			else if((match = data.match(formatoYMD))) {
+				yyyy = parseInt(match[1], 10);
+				mm = parseInt(match[2], 10);
+				dd = parseInt(match[3], 10);
+			}
+		}
+		
+		if(formato == "dmY") {
+			dataFormattata = dd + '/' + mm + '/' + yyyy; // riposiziono secondo formato italiano
+		} else if(formato == "Ymd") {
+			dataFormattata = yyyy + '-' + mm + '-' + dd; // riposiziono secondo formato inglese
+		}
+		else if(formato == "m") {
+			dataFormattata = mm; // estraggo il mese
+		}
+		return dataFormattata;
+	}
 
     inizializza() {
         this.contenitore.innerHTML = `
-            <div class="intestazione">
+			<div class="intestazione">
                 <button class="mese-precedente"><</button>
                 <div class="mese-anno"></div>
                 <button class="mese-successivo">></button>
@@ -73,7 +74,7 @@ class Calendario {
                 <div class="col">Sab</div>
                 <div class="col">Dom</div>
             </div>
-            <div class="giorni"></div>
+            <div id="giorni" class="giorni"></div>
         `;
 
         this.contenitore.querySelector('.mese-precedente').addEventListener('click', () => this.mesePrec()); // listner click mese precedente
@@ -92,13 +93,9 @@ class Calendario {
 
         const primoGiorno = (new Date(this.annoCorrente, this.meseCorrente, 1).getDay() + 6) % 7; // numero del primo giorno del mese sulla settimana
         const giorniNelMese = new Date(this.annoCorrente, this.meseCorrente + 1, 0).getDate(); // numero di giorni del mese
-
-        giorniEl.innerHTML = '';
+		this.verificaPrenotazioni(this.formattaData(new Date(this.annoCorrente, this.meseCorrente + 1, 0), "Ymd")); // recupero le prenotazioni del mese corrente
 		
-		const { randomSalta, randomOccupa } = this.ottieniRandom(this.meseCorrente, this.annoCorrente); // ottengo i valori in base al mese-anno
-				
-		var giorniDisabilitati = 0; // contatore giorni occupati
-		var saltaContatore = 0; // contatore giorni da saltare
+        giorniEl.innerHTML = '';
 
         for (var i = 0; i < primoGiorno; i++) { // creo div vuoti finchè non incontro il primo giorno del mese e li aggiungo all'elemento contenitore
             const vuoto = document.createElement('div');
@@ -107,37 +104,25 @@ class Calendario {
         }
 
         for (var i = 1; i <= giorniNelMese; i++) { // aggiungo i giorni all'elemento contenitore
-            const giornoData = new Date(this.annoCorrente, this.meseCorrente, i);
-            const giornoEl = document.createElement('div');
+			const giornoData = new Date(this.annoCorrente, this.meseCorrente, i);
+            const giornoEl = document.createElement('div');			
             giornoEl.classList.add('col');
-
-            if (giornoData < new Date(this.oggi.setHours(0, 0, 0, 0))) { // se il giorno del loop è inferiore al giorno attuale aggiungo la classe disabilitato
-                giornoEl.classList.add('disabilitato');
-            }  else {
-				if (giorniDisabilitati > 0) { // se sono presenti giorni da disabilitare aggiungo la classe e riduco il contatore
-					giornoEl.classList.add('disabilitato');
-					giorniDisabilitati--;
-				} else if (saltaContatore === randomSalta && saltaContatore != 0) { //se i giorni da saltare sono finiti
-					saltaContatore = 0; // resetto il contatore di salto
-					giorniDisabilitati = randomOccupa; // imposto i giorni da occupare
-					giornoEl.classList.add('disabilitato'); // disabilito il giorno
-					giorniDisabilitati--; // riduco il contatore di un giorno
-				} else {
-					saltaContatore++;
-				}
-			}
 			
+			if (giornoData < new Date(this.oggi.setHours(0, 0, 0, 0))) { // se il giorno del loop è inferiore al giorno attuale aggiungo la classe disabilitato
+				giornoEl.classList.add('disabilitato');
+			}
+									
 			if (giornoData.toDateString() === new Date().toDateString()) { // se il giorno del loop è uguale al giorno attuale aggiungo la classe oggi
-                giornoEl.classList.add('selezionato');
-            }
+				giornoEl.classList.add('selezionato');
+			}
 
-            if (giornoData.getDay() === 0 || giornoData.getDay() === 6) { // se il giorno del loop è sabato o domenica aggiungo la classe fine-settimana
-                giornoEl.classList.add('fine-settimana');
-            }
-
-            giornoEl.textContent = i;
-            giornoEl.dataset.data = `${i}/${this.meseCorrente + 1}/${this.annoCorrente}`; // imposto un attributo al div nel formato dd/mm/yyyy
-            giornoEl.addEventListener('click', () => this.selezionaGiorno(giornoEl)); // aggiungo un listener al click sul div
+			if (giornoData.getDay() === 0 || giornoData.getDay() === 6) { // se il giorno del loop è sabato o domenica aggiungo la classe fine-settimana
+				giornoEl.classList.add('fine-settimana');
+			}
+									
+			giornoEl.textContent = i;
+			giornoEl.dataset.data = `${i}/${this.meseCorrente + 1}/${this.annoCorrente}`; // imposto un attributo al div nel formato dd/mm/yyyy
+			giornoEl.addEventListener('click', () => this.selezionaGiorno(giornoEl)); // aggiungo un listener al click sul div
             giorniEl.appendChild(giornoEl);
         }
     }
@@ -188,7 +173,7 @@ class Calendario {
 			}
 
 			elemento.classList.add('selezionato'); // aggiungo la classe selezionato al nuovo elemento
-			calendario.popolaOrari(`${elemento.dataset.data}`);
+			this.popolaOrari(`${elemento.dataset.data}`);
         }
     }
 	
@@ -217,8 +202,7 @@ class Calendario {
 		const riepilogo2 = document.getElementById("riepilogo_2");
 		const riepilogo3 = document.getElementById("riepilogo_3");
 		const formCancellazione = document.getElementById("formCancellazione");
-		const random = this.generaRandomOrari(data);
-		
+
 		if (riepilogo1) riepilogo1.classList.add('attiva');
 		if (riepilogo2) riepilogo2.classList.remove('attiva');
 		if (riepilogo3) riepilogo3.classList.remove('attiva');
@@ -226,70 +210,89 @@ class Calendario {
 
 		if (!riepilogo1) return;
 
+		const _data = this.formattaData(data, "Ymd");
 		const orariPranzo = riepilogo1.querySelectorAll(".orari")[0];
 		const orariCena = riepilogo1.querySelectorAll(".orari")[1];
 
-		// pulisco la sezione orari prima di renderizzare
+		// pulisco le sezioni orari prima di renderizzare
 		orariPranzo.innerHTML = '';
 		orariCena.innerHTML = '';
-
-		var saltaContatorePranzo = 0; // contatore orari da saltare pranzo
-		var occupaContatorePranzo = 0; // contatore orari occupati pranzo
-
-		for (var ora = 12; ora <= 14; ora++) { // creo un bottone ogni 30 minuti a partire dalle 12 fino alle 14
-			const minuti = ora === 14 ? [0] : [0, 30];
-			minuti.forEach(minuto => {
+		
+		const popolaOrariPerDiv = (orariDiv, orariArray, _data) => {
+			
+			const prenotazioniDelGiorno = (this.prenotazioni[this.formattaData(data, "m")]?.prenotazioni || []).filter(prenotazione => {
+				return prenotazione.data === _data; // filtra gli orari per la data selezionata
+			});
+			
+			orariArray.forEach(orario => {
 				const bottone = document.createElement("button");
-				bottone.textContent = `${ora}:${minuto.toString().padStart(2, "0")}`;
+				bottone.textContent = orario;
 				bottone.className = "col";
-				bottone.dataset.orario = `${ora}:${minuto.toString().padStart(2, "0")}`;
-
-				if (saltaContatorePranzo === random.pranzo.randomSalta && saltaContatorePranzo != 0) {
-					saltaContatorePranzo = 0;
-					occupaContatorePranzo = random.pranzo.randomOccupa;
-				}
-
-				if (occupaContatorePranzo > 0) {
-					bottone.classList.add('disabilitato');
-					occupaContatorePranzo--;
-				} else {
-					saltaContatorePranzo++;
+				bottone.dataset.orario = orario;
+				
+				if (!this.prenotazioniRandom[_data]) { // inizializza la struttura dati
+					this.prenotazioniRandom[_data] = {};
 				}
 				
-				bottone.addEventListener('click', () => this.selezionaOrario(bottone, data)); // aggiungo un listener al click sul bottone
-				orariPranzo.appendChild(bottone);
-			});
-		}
-
-		var saltaContatoreCena = 0;  // contatore orari da saltare cena
-		var occupaContatoreCena = 0; // contatore orari occupati cena
-
-		for (var ora = 19; ora <= 22; ora++) { // creo un bottone ogni 30 minuti a partire dalle 19 fino alle 22
-			const minuti = ora === 22 ? [0] : [0, 30];
-			minuti.forEach(minuto => {
-				const bottone = document.createElement("button");
-				bottone.textContent = `${ora}:${minuto.toString().padStart(2, "0")}`;
-				bottone.className = "col";
-				bottone.dataset.orario = `${ora}:${minuto.toString().padStart(2, "0")}`;
-
-				if (saltaContatoreCena === random.cena.randomSalta && saltaContatoreCena != 0) {
-					saltaContatoreCena = 0;
-					occupaContatoreCena = random.cena.randomOccupa;
-				}
-
-				if (occupaContatoreCena > 0) {
-					bottone.classList.add('disabilitato');
-					occupaContatoreCena--;
+				if (this.prenotazioniRandom[_data][orario] === undefined) { // se non esiste o è definito e l'orario è disabilitato randomicamente
+					if (Math.random() < 0.3) { // 30% di probabilità di disabilitare un orario
+						bottone.classList.add('disabilitato');
+						this.prenotazioniRandom[_data][orario] = true; // salva lo stato come disabilitato
+					} else {
+						this.prenotazioniRandom[_data][orario] = false; // salva lo stato come non disabilitato
+					}
 				} else {
-					saltaContatoreCena++;
+					if (this.prenotazioniRandom[_data][orario]) { // se lo stato è true disabilita
+						bottone.classList.add('disabilitato');
+					}
 				}
-
-				bottone.addEventListener('click', () => this.selezionaOrario(bottone, data)); // aggiungo un listener al click sul bottone
-				orariCena.appendChild(bottone);
+				
+				const prenotazione = prenotazioniDelGiorno.find(p => p.ora === `${orario}:00`);
+				if (prenotazione && prenotazione.count >= this.prenotazioniMassime) { // disabilita l'orario se il numero di prenotazioni raggiunge o supera il limite massimo
+					bottone.classList.add('disabilitato');
+				}
+				
+				bottone.addEventListener('click', () => this.selezionaOrario(bottone, data));
+				orariDiv.appendChild(bottone);
 			});
-		}
+		};		
+		
+		// separazione orari per pranzo e cena
+		popolaOrariPerDiv(orariPranzo, this.orari.filter(orario => parseInt(orario.split(":")[0], 10) < 19), _data);
+		popolaOrariPerDiv(orariCena, this.orari.filter(orario => parseInt(orario.split(":")[0], 10) >= 19), _data);
 	}
-
+		
+	verificaPrenotazioni(_data) {
+		if (!this.prenotazioni[this.formattaData(_data, "m")]) { // se il valore non è già stato richiesto procedi, altrimenti evita inutili ripetizioni
+			try { // fetch post a php dei valori [data] con response in json
+				fetch('php/verificaPrenotazioni.php', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						data: _data
+					}),
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.error) {
+						if(data.errorData) {
+							console.error("Errore:", data.errorData.errorInfo);
+						} else {
+							console.error("Errore:", data.error);
+						}
+					} else {
+						this.prenotazioni[this.formattaData(_data, "m")] = { prenotazioni: data.data.prenotazioni };
+					}
+				})
+            } catch (error) {
+                console.error("Errore:", error);
+            }
+		}
+		return this.prenotazioni[this.formattaData(_data, "m")];
+	}
+	
 	resetFormPrenotazione(emailValue = "", nomeValue = "", ospitiValue = "") {
 		const email = document.getElementById("email");
 		const nome = document.getElementById("nome");
@@ -434,6 +437,10 @@ class Calendario {
 						formReturn.classList.add('return-valid');
 						formSubmit.disabled = true;
 						formSubmit.classList.add('disabilitato');
+						if (this.prenotazioni[this.formattaData(dataPrenotazione, "m")]) {
+							delete this.prenotazioni[this.formattaData(dataPrenotazione, "m")]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						}
+						this.renderCalendario();
 					}
 				})
             } catch (error) {
@@ -518,7 +525,10 @@ class Calendario {
 							</div>
 						`;
 						formReturn.classList.add('return-cancellazione-valid');
-						console.log(data.data);
+						if (this.prenotazioni[this.formattaData(data.data.data, "m")]) {
+							delete this.prenotazioni[this.formattaData(data.data.data, "m")]; // rimuove la chiave e i relativi dati forzando il refresh degli orari
+						}
+						this.renderCalendario();
 					}
 				})
             } catch (error) {
